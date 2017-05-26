@@ -42,34 +42,3 @@ void loop() {
 		Serial.println(comm.dir);
 	}
 }
-
-
-//#include <RF24_config.h>
-//#include <printf.h>
-//#include <nRF24L01.h>
-//#include "RF24.h"
-//
-//RF24 NRF(9, 10);
-//const uint64_t pipe = 0xE8E8F0F0E1LL;
-//unsigned char opt;
-//void setup() {
-//	Serial.begin(9600);
-//	Serial.write("Sender!");
-//	NRF.begin();
-//	NRF.openWritingPipe(pipe);
-//	Serial.write("setup ok!");
-//}
-//
-//void loop() {
-//	if (Serial.available()) {
-//		opt = Serial.read();
-//		Serial.println("sending...");
-//		NRF.write(&opt, sizeof(unsigned char));
-//		Serial.println("Done!");
-//	}
-//}
-//
-// Name:		Arduino_NRF_Sender.ino
-// Created:	5/22/2017 9:07:54 PM
-// Author:	orley
-//*/
