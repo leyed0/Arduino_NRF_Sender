@@ -87,12 +87,16 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="nRF24L01.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="RF24.h" />
     <ClInclude Include="RF24_config.h" />
     <ClInclude Include="__vm\.Arduino_NRF_Sender.vsarduino.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="RF24.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Arduino_NRF_Sender.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

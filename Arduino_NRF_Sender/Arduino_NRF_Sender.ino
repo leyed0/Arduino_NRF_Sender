@@ -4,19 +4,43 @@
 				//MISO
 				//
 
+enum opts
+{
+	COUNTERCLOCKWISE = 0b0000,
+	CLOCKWISE,
+	MOTOR0 = 0b0000,
+	MOTOR1 = 0b0010,
+	MOTOR2,
+	MOTOR3,
+	ROBOT0 = 0b0000,
+	ROBOT1 = 0b1000,
+	ROBOT2,
+	ROBOT3,
+	ROBOT4,
+	ROBOT5,
+	ROBOT6,
+	ROBOT7,
+};
+
+
 struct comando {
-	unsigned char opt1, verify;
+	unsigned char opt1;
 	uint8_t opt2, opt3;
 	bool dir;
 };
 RF24 NRF(7, 8);
-byte addresses[][6] = { "1Node","2Node" };
 const uint64_t pipe = 0xE8E8F0F0E1LL;
 comando comm;
 // the setup function runs once when you press reset or power the board
 void setup() {
 	Serial.begin(9600);
 	Serial.println("Sender!");
+	//new code - setup
+	NRF.setPALevel(RF24_PA_MAX);
+	NRF.setDataRate(RF24_2MBPS);
+	NRF.setChannel(124);
+	NRF.setRetries(0, 10);
+	//end of new code
 	NRF.begin();
 	NRF.openWritingPipe(pipe);
 	Serial.println("setup OK!");
@@ -31,14 +55,7 @@ void loop() {
 		comm.opt3 = Serial.parseInt();
 		if (Serial.parseInt() == 0) comm.dir = false;
 		else comm.dir = true;
-		comm.verify = Serial.read();
-		Serial.println("comand received!");
-		Serial.println("sending!");
+		Serial.read();
 		NRF.write(&comm, sizeof(comm));
-		Serial.println("Sent!");
-		Serial.println(comm.opt1);
-		Serial.println(comm.opt2);
-		Serial.println(comm.opt3);
-		Serial.println(comm.dir);
 	}
 }
