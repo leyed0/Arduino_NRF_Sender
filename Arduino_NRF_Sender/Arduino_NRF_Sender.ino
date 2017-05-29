@@ -33,15 +33,15 @@ const uint64_t pipe = 0xE8E8F0F0E1LL;
 comando comm;
 // the setup function runs once when you press reset or power the board
 void setup() {
-	Serial.begin(9600);
+	Serial.begin(115200);
 	Serial.println("Sender!");
+	NRF.begin();
 	//new code - setup
 	NRF.setPALevel(RF24_PA_MAX);
 	NRF.setDataRate(RF24_2MBPS);
 	NRF.setChannel(124);
 	NRF.setRetries(0, 10);
 	//end of new code
-	NRF.begin();
 	NRF.openWritingPipe(pipe);
 	Serial.println("setup OK!");
 }
