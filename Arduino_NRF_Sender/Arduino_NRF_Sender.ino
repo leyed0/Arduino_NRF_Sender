@@ -57,5 +57,6 @@ void loop() {
 		else comm.dir = true;
 		Serial.read();
 		NRF.write(&comm, sizeof(comm));
+		Serial.println("Sent!");
 	}
 }
