@@ -1,6 +1,7 @@
 #include "RF24.h"
+#include <avr/wdt.h>
 
-
+//opts - em desenvolvimento para troca de dados
 enum opts
 {
 	COUNTERCLOCKWISE = 0b0000,
@@ -21,7 +22,7 @@ enum opts
 
 struct command {
 	unsigned char opt1;
-	uint8_t  opt2, opt3;
+	uint8_t opt2, opt3;
 	bool dir;
 };
 
@@ -62,5 +63,38 @@ void loop() {
 
 void SendNRF(uint8_t robot, const void *buf, uint8_t len) {
 	NRF.openWritingPipe(pipe[robot]);
-	NRF.write(buf, sizeof(len));
+	if (!NRF.write(buf, sizeof(len))) On_Error("Error sending data!");
+}
+
+void On_Error(String message) {
+	pinMode(10, OUTPUT);
+	while (true) {
+		if (Serial.available()) {
+			switch (Serial.read()) {
+			case 'p':
+				Serial.println(message);
+				Serial.println("'c' to continue, 'r' to reboot");
+				while (!Serial.available());
+				break;
+			case 'c':
+				return;
+				break;
+			case 'r':
+				Reboot();
+				break;
+			default:
+				break;
+			}
+		}
+		digitalWrite(10, !digitalRead(10));
+		delay(500);
+	}
+}
+
+void Reboot()
+{
+	wdt_enable(WDTO_15MS);
+	while (1)
+	{
+	}
 }
