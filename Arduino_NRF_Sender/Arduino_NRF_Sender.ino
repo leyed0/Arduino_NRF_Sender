@@ -1,8 +1,5 @@
 #include "RF24.h"
 
-//portas do mega  MOSI
-				//MISO
-				//
 
 enum opts
 {
@@ -22,15 +19,17 @@ enum opts
 	ROBOT7,
 };
 
-
-struct comando {
+struct command {
 	unsigned char opt1;
-	uint8_t opt2, opt3;
+	uint8_t  opt2, opt3;
 	bool dir;
 };
+
 RF24 NRF(7, 8);
-const uint64_t pipe = 0xE8E8F0F0E1LL;
-comando comm;
+const uint64_t pipe[3] = {0xE8E8F0F0E1LL,0xE8E8F0F0E10L,0xE8E8F0F0E0LL};
+command comm;
+uint8_t robot;
+
 // the setup function runs once when you press reset or power the board
 void setup() {
 	Serial.begin(115200);
@@ -42,7 +41,6 @@ void setup() {
 	NRF.setChannel(124);
 	NRF.setRetries(0, 10);
 	//end of new code
-	NRF.openWritingPipe(pipe);
 	Serial.println("setup OK!");
 }
 
@@ -51,12 +49,18 @@ void loop() {
 	if (Serial.available())
 	{
 		comm.opt1 = Serial.read();
+		robot = Serial.parseInt();
 		comm.opt2 = Serial.parseInt() - 1;
 		comm.opt3 = Serial.parseInt();
 		if (Serial.parseInt() == 0) comm.dir = false;
 		else comm.dir = true;
 		Serial.read();
-		NRF.write(&comm, sizeof(comm));
+		SendNRF(robot, &comm, sizeof(comm));
 		Serial.println("Sent!");
 	}
+}
+
+void SendNRF(uint8_t robot, const void *buf, uint8_t len) {
+	NRF.openWritingPipe(pipe[robot]);
+	NRF.write(buf, sizeof(len));
 }
