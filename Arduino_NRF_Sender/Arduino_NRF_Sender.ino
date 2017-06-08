@@ -7,6 +7,7 @@ struct MotorCmd {
 };
 
 RF24 NRF(7, 8);
+const uint64_t ack = 0x08E8F0F0E1LL;
 const uint64_t pipe[3] = {0xE8E8F0F0E1LL,0xE8E8F0F0E10L,0xE8E8F0F0E0LL};
 
 
@@ -62,7 +63,6 @@ void loop() {
 			Serial.read();
 			SendNRF(&CMDID, sizeof(CMDID));
 			SendNRF(&MtCmd, sizeof(MtCmd));
-			Serial.println('.');
 			break;
 		default:
 			Serial.println(Serial.read());
@@ -76,12 +76,16 @@ void loop() {
 
 void SendNRF(const void *buf, uint8_t len) {
 	NRF.openWritingPipe(pipe[robot]);
-	if (!NRF.write(buf, len)) On_Error("Error sending data!");
+	if (!NRF.write(buf, len)) {
+		Reboot();
+		On_Error("Error sending data!");
+	}
 	return;
 }
 
 void On_Error(String message) {
 	pinMode(10, OUTPUT);
+	Serial.println("error!");
 	while (true) {
 		if (Serial.available()) {
 			switch (Serial.read()) {
