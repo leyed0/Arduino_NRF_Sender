@@ -75,10 +75,12 @@ void loop() {
 
 
 void SendNRF(const void *buf, uint8_t len) {
+	delay(5);
 	NRF.openWritingPipe(pipe[robot]);
 	if (!NRF.write(buf, len)) {
-		Reboot();
-		On_Error("Error sending data!");
+		//Reboot();
+		// On_Error("Error sending data!");
+		Serial.flush();
 	}
 	return;
 }
