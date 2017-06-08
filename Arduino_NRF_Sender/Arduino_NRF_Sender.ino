@@ -1,34 +1,17 @@
 #include "RF24.h"
 #include <avr/wdt.h>
 
-//opts - em desenvolvimento para troca de dados
-enum opts
-{
-	COUNTERCLOCKWISE = 0b0000,
-	CLOCKWISE,
-	MOTOR0 = 0b0000,
-	MOTOR1 = 0b0010,
-	MOTOR2,
-	MOTOR3,
-	ROBOT0 = 0b0000,
-	ROBOT1 = 0b1000,
-	ROBOT2,
-	ROBOT3,
-	ROBOT4,
-	ROBOT5,
-	ROBOT6,
-	ROBOT7,
-};
-
-struct command {
-	unsigned char opt1;
-	uint8_t opt2, opt3;
-	bool dir;
+struct MotorCmd {
+	uint8_t speed[2];
+	bool direction[2];
 };
 
 RF24 NRF(7, 8);
 const uint64_t pipe[3] = {0xE8E8F0F0E1LL,0xE8E8F0F0E10L,0xE8E8F0F0E0LL};
-command comm;
+
+
+MotorCmd MtCmd;
+unsigned char CMDID, rbt;
 uint8_t robot;
 
 // the setup function runs once when you press reset or power the board
@@ -45,25 +28,56 @@ void setup() {
 	Serial.println("setup OK!");
 }
 
-// the loop function runs over and over again until power down or reset
+// command: CMDID|destiny|speed0|direction0|speed1|direction1.
 void loop() {
 	if (Serial.available())
 	{
-		comm.opt1 = Serial.read();
-		robot = Serial.parseInt();
-		comm.opt2 = Serial.parseInt() - 1;
-		comm.opt3 = Serial.parseInt();
-		if (Serial.parseInt() == 0) comm.dir = false;
-		else comm.dir = true;
-		Serial.read();
-		SendNRF(robot, &comm, sizeof(comm));
-		Serial.println("Sent!");
+		CMDID = Serial.read();
+
+		switch (CMDID) //verify the command type
+		{
+		case'R':
+			for (int i = 0; i < 100 && !Serial.available(); i++);
+			if (Serial.available()) rbt = Serial.read();
+			switch (rbt)
+			{
+			case 'R':
+				robot = Serial.parseInt();
+				SendNRF(&CMDID, sizeof(CMDID));
+				break;
+			case 'S':
+				Reboot();
+				break;
+			default:
+				Serial.println("Send a valid argument!");
+				break;
+			}
+			break;
+		case 'M':
+			robot = Serial.parseInt();
+			MtCmd.speed[0] = Serial.parseInt();
+			MtCmd.direction[0] = Serial.parseInt();
+			MtCmd.speed[1] = Serial.parseInt();
+			MtCmd.direction[1] = Serial.parseInt();
+			Serial.read();
+			SendNRF(&CMDID, sizeof(CMDID));
+			SendNRF(&MtCmd, sizeof(MtCmd));
+			Serial.println('.');
+			break;
+		default:
+			Serial.println(Serial.read());
+			Serial.println(Serial.read());
+			Serial.println("Invalid command!");
+			break;
+		}
 	}
 }
 
-void SendNRF(uint8_t robot, const void *buf, uint8_t len) {
+
+void SendNRF(const void *buf, uint8_t len) {
 	NRF.openWritingPipe(pipe[robot]);
-	if (!NRF.write(buf, sizeof(len))) On_Error("Error sending data!");
+	if (!NRF.write(buf, len)) On_Error("Error sending data!");
+	return;
 }
 
 void On_Error(String message) {
