@@ -12,8 +12,8 @@ const uint64_t pipe[3] = {0xE8E8F0F0E1LL,0xE8E8F0F0E10L,0xE8E8F0F0E0LL};
 
 
 MotorCmd MtCmd;
-unsigned char CMDID, rbt;
-uint8_t robot;
+unsigned char CMDID;
+uint8_t robot, rbt;
 
 // the setup function runs once when you press reset or power the board
 void setup() {
@@ -64,7 +64,14 @@ void loop() {
 			SendNRF(&CMDID, sizeof(CMDID));
 			SendNRF(&MtCmd, sizeof(MtCmd));
 			break;
+		case 'S':
+			robot = Serial.parseInt();
+			SendNRF(&CMDID, sizeof(CMDID));
+			rbt = Serial.parseInt();
+			SendNRF(&rbt, sizeof(rbt));
+			break;
 		default:
+			//remove garbage - may be trash
 			Serial.println(Serial.read());
 			Serial.println(Serial.read());
 			Serial.println("Invalid command!");
@@ -75,7 +82,7 @@ void loop() {
 
 
 void SendNRF(const void *buf, uint8_t len) {
-	delay(5);
+	//delay(5);
 	NRF.openWritingPipe(pipe[robot]);
 	if (!NRF.write(buf, len)) {
 		//Reboot();
