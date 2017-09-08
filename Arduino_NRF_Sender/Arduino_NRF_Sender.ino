@@ -1,15 +1,17 @@
 #include "RF24.h"
 #include <avr/wdt.h>
 
+//struct com os dados necessarios para setar a velocidade dos motores
 struct MotorCmd {
 	uint8_t speed[2];
 	bool direction[2];
 };
 
+//declarar o NRF - declarar portas utilizadas na comunicação serial
 RF24 NRF(7, 8);
 const uint64_t ack = 0x08E8F0F0E1LL;
 const uint64_t pipe[3] = {0xE8E8F0F0E1LL,0xE8E8F0F0E10L,0xE8E8F0F0E0LL};
-
+//cada pipe é o "endereço" de uma placa- Facilita o controle de varios robos ao mesmo tempo
 
 MotorCmd MtCmd;
 unsigned char CMDID;
@@ -37,23 +39,6 @@ void loop() {
 
 		switch (CMDID) //verify the command type
 		{
-		case'R':
-			for (int i = 0; i < 100 && !Serial.available(); i++);
-			if (Serial.available()) rbt = Serial.read();
-			switch (rbt)
-			{
-			case 'R':
-				robot = Serial.parseInt();
-				SendNRF(&CMDID, sizeof(CMDID));
-				break;
-			case 'S':
-				Reboot();
-				break;
-			default:
-				Serial.println("Send a valid argument!");
-				break;
-			}
-			break;
 		case 'M':
 			robot = Serial.parseInt();
 			MtCmd.speed[0] = Serial.parseInt();
@@ -92,6 +77,8 @@ void SendNRF(const void *buf, uint8_t len) {
 	return;
 }
 
+
+//em caso de erro, essa função deve ser chamada. Ela pode ser utilizada para detalhar o mesmo
 void On_Error(String message) {
 	pinMode(10, OUTPUT);
 	Serial.println("error!");
@@ -118,6 +105,8 @@ void On_Error(String message) {
 	}
 }
 
+
+//soft rebott - tem bugs
 void Reboot()
 {
 	wdt_enable(WDTO_15MS);
