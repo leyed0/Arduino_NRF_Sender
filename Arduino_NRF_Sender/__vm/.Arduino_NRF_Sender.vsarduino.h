@@ -14,8 +14,9 @@
 #define _VSARDUINO_H_
 #define __AVR_ATmega328p__
 #define __AVR_ATmega328P__
+#define _VMDEBUG 1
 #define F_CPU 16000000L
-#define ARDUINO 10802
+#define ARDUINO 10805
 #define ARDUINO_AVR_UNO
 #define ARDUINO_ARCH_AVR
 #define __cplusplus 201103L
@@ -64,16 +65,17 @@ typedef void *__builtin_va_list;
 
 #include <arduino.h>
 #include <pins_arduino.h> 
-#undef F
-#define F(string_literal) ((const PROGMEM char *)(string_literal))
+//#undef F
+//#define F(string_literal) ((const PROGMEM char *)(string_literal))
 #undef PSTR
 #define PSTR(string_literal) ((const PROGMEM char *)(string_literal))
 
-#define pgm_read_byte(address_short) void()
-#define pgm_read_word(address_short) void()
-#define pgm_read_dword(address_short) void()
-#define pgm_read_float(address_short) void()
-#define pgm_read_ptr(address_short)   void()
+
+#define pgm_read_byte(address_short) uint8_t() 
+#define pgm_read_word(address_short) uint16_t() 
+#define pgm_read_dword(address_short) uint32_t()
+#define pgm_read_float(address_short) float()
+#define pgm_read_ptr(address_short)   short()
 
 #include "Arduino_NRF_Sender.ino"
 #endif
